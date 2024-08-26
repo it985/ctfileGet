@@ -85,7 +85,7 @@ const util = {
     }
 }
 let ModuleCache = {};
-const ModuleLoader = {
+window.ModuleLoader = {
     useRedbankLoaderGlobal: true,
     pendingCalls: [],
     loadedRemote: [],
@@ -142,7 +142,7 @@ const ModuleLoader = {
         }
     }
 }
-let Module = {
+window.Module = {
     autoinit: {
         initEverything: async () => {
             Module.autoinit.initList(Object.keys(Module));
@@ -190,18 +190,7 @@ let Module = {
         set: (key, value) => {
             Module.pref.data[key] = value;
             Module.pref.sync();
-        },
-        addRecent: (icon, name, url) => {
-            let recent = Module.pref.get("recent") || [];
-            recent.unshift({ icon: icon, name: name, url: url });
-            recent = recent.filter((value, index, self) =>
-                index === self.findIndex((t) => (
-                    t.place === value.place && t.name === value.name
-                ))
-            )
-            recent = recent.slice(0, 50);
-            Module.pref.set("recent", recent);
-            Module.recent.render();
+            return value;
         }
     },
     msg: {
@@ -384,14 +373,12 @@ right: 0px;
                 newFrame.id = "yuniFrame";
                 newFrame.style.overflow = "auto";
                 document.getElementById("closeBtn").insertAdjacentElement("afterend", newFrame);
-                fetch("/yuni/" + url + ".yuniml").then(response => response.text()).then(data => {
-                    util.setInnerHTML(newFrame, data);
-                    newFrame.style.padding = "0px";
-                    document.getElementById("loading").style.display = "none";
-                });
                 if (wide) {
                     document.getElementById("yuniFrame").style.maxWidth = "100vw";
                 }
+                util.setInnerHTML(newFrame, await (await fetch("/yuni/" + url + ".yuniml")).text());
+                newFrame.style.padding = "0px";
+                document.getElementById("loading").style.display = "none";
             };
             Module.yuni.close = async () => {
                 document.getElementById("yuni").style.marginTop = "100vh";
@@ -407,11 +394,11 @@ right: 0px;
         },
         showFrame: async (url, wide) => {
             Module.yuni.lazyinit();
-            Module.yuni.showFrame(url, wide);
+            await Module.yuni.showFrame(url, wide);
         },
         showNative: async (url, wide) => {
             Module.yuni.lazyinit();
-            Module.yuni.showNative(url, wide);
+            await Module.yuni.showNative(url, wide);
         }
     },
     blobBtn: {

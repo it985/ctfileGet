@@ -10,7 +10,7 @@ ModuleCache.homeAddon = {
     adLoader: {
         done: false,
         init: () => {
-            if (!localStorage.getItem("agreePrivacy")) {
+            if (!Module.pref.get("agreePrivacy")) {
                 let read = document.createElement("p");
                 read.className = "actBtn";
                 read.innerText = "查看";
@@ -36,7 +36,7 @@ ModuleCache.homeAddon = {
         lazyinit: async () => {
             if (Module.adLoader.done || window.disableAds) return;
             document.getElementById("ads").style.display = "block";
-            if (localStorage.adPref && localStorage.adPref == "any") {
+            if (Module.pref.get("adPref") == "any") {
                 //Anti uBlock Origin
                 (async () => {
                     await util.sleep(2000);
@@ -46,7 +46,7 @@ ModuleCache.homeAddon = {
                             if (this.status === 200) {
                                 if (!this.responseURL.startsWith("https")) {
                                     console.log("广告被拦截");
-                                    loadSelfAd();
+                                    Module.adLoader.loadSelfAd();
                                 } else {
                                     (adsbygoogle = window.adsbygoogle || []).push({});
                                     util.loadScriptAsync("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1806614386308377");
